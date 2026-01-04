@@ -43,6 +43,9 @@
           <form th:action="@{/counters/{id}/decrement(id=${c.id})}" method="post" style="display: inline;">
             <button type="submit" class="button small secondary">−</button>
           </form>
+          <form th:action="@{/counters/{id}/delete(id=${c.id})}" method="post" style="display: inline;">
+            <button type="submit" class="button small secondary" onclick="return confirm('Delete this counter?')">Delete</button>
+          </form>
         </td>
       </tr>
       </tbody>

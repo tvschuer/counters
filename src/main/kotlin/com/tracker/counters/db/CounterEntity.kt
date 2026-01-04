@@ -28,6 +28,9 @@ class CounterEntity(
 
 	@Column(name = "created_at", nullable = false)
 	val createdAt: Instant,
+
+	@Column(name = "deleted_at", nullable = true)
+	var deletedAt: Instant? = null,
 ) {
 	@Suppress("unused")
 	protected constructor() : this(
@@ -37,6 +40,7 @@ class CounterEntity(
 		value = 0L,
 		defaultAmount = 1,
 		createdAt = Instant.EPOCH,
+		deletedAt = null,
 	)
 }
 

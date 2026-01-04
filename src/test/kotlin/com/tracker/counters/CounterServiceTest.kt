@@ -184,6 +184,125 @@ class CounterServiceTest {
 
 		verify(eventRepo).save(any(CounterEventEntity::class.java))
 	}
+
+	@Test
+	fun `deleteCounter marks counter with deletedAt timestamp`() {
+		val id = UUID.randomUUID()
+		val repo = Mockito.mock(CounterRepository::class.java)
+		val eventRepo = Mockito.mock(CounterEventRepository::class.java)
+		val entity = CounterEntity(
+			id = id,
+			name = "Water",
+			unit = "glasses",
+			value = 10L,
+			defaultAmount = 1,
+			createdAt = Instant.EPOCH,
+			deletedAt = null,
+		)
+		`when`(repo.findById(id)).thenReturn(java.util.Optional.of(entity))
+		`when`(repo.save(any(CounterEntity::class.java))).thenAnswer { inv -> inv.getArgument(0) }
+
+		val fixedClock = Clock.fixed(Instant.parse("2026-01-04T12:00:00Z"), ZoneOffset.UTC)
+		val service = CounterService(repo, eventRepo, fixedClock)
+
+		service.deleteCounter(id)
+
+		assertEquals(Instant.parse("2026-01-04T12:00:00Z"), entity.deletedAt)
+		verify(repo).save(entity)
+	}
+
+	@Test
+	fun `deleteCounter rejects already deleted counter`() {
+		val id = UUID.randomUUID()
+		val repo = Mockito.mock(CounterRepository::class.java)
+		val eventRepo = Mockito.mock(CounterEventRepository::class.java)
+		val entity = CounterEntity(
+			id = id,
+			name = "Water",
+			unit = "glasses",
+			value = 10L,
+			defaultAmount = 1,
+			createdAt = Instant.EPOCH,
+			deletedAt = Instant.parse("2026-01-03T10:00:00Z"),
+		)
+		`when`(repo.findById(id)).thenReturn(java.util.Optional.of(entity))
+
+		val service = CounterService(repo, eventRepo)
+
+		assertThrows(IllegalArgumentException::class.java) {
+			service.deleteCounter(id)
+		}
+	}
+
+	@Test
+	fun `increment rejects deleted counter`() {
+		val id = UUID.randomUUID()
+		val repo = Mockito.mock(CounterRepository::class.java)
+		val eventRepo = Mockito.mock(CounterEventRepository::class.java)
+		val entity = CounterEntity(
+			id = id,
+			name = "Water",
+			unit = "glasses",
+			value = 10L,
+			defaultAmount = 1,
+			createdAt = Instant.EPOCH,
+			deletedAt = Instant.parse("2026-01-03T10:00:00Z"),
+		)
+		`when`(repo.findById(id)).thenReturn(java.util.Optional.of(entity))
+
+		val service = CounterService(repo, eventRepo)
+
+		assertThrows(IllegalArgumentException::class.java) {
+			service.increment(id)
+		}
+	}
+
+	@Test
+	fun `decrement rejects deleted counter`() {
+		val id = UUID.randomUUID()
+		val repo = Mockito.mock(CounterRepository::class.java)
+		val eventRepo = Mockito.mock(CounterEventRepository::class.java)
+		val entity = CounterEntity(
+			id = id,
+			name = "Water",
+			unit = "glasses",
+			value = 10L,
+			defaultAmount = 1,
+			createdAt = Instant.EPOCH,
+			deletedAt = Instant.parse("2026-01-03T10:00:00Z"),
+		)
+		`when`(repo.findById(id)).thenReturn(java.util.Optional.of(entity))
+
+		val service = CounterService(repo, eventRepo)
+
+		assertThrows(IllegalArgumentException::class.java) {
+			service.decrement(id)
+		}
+	}
+
+	@Test
+	fun `listCounters excludes deleted counters`() {
+		val repo = Mockito.mock(CounterRepository::class.java)
+		val eventRepo = Mockito.mock(CounterEventRepository::class.java)
+		
+		val activeEntity = CounterEntity(
+			id = UUID.randomUUID(),
+			name = "Active",
+			unit = "count",
+			value = 5L,
+			defaultAmount = 1,
+			createdAt = Instant.EPOCH,
+			deletedAt = null,
+		)
+		
+		`when`(repo.findAllByDeletedAtNullOrderByNameAsc()).thenReturn(listOf(activeEntity))
+
+		val service = CounterService(repo, eventRepo)
+		val counters = service.listCounters()
+
+		assertEquals(1, counters.size)
+		assertEquals("Active", counters[0].name)
+	}
 }
 
 

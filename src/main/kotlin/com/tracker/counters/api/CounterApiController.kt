@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.MethodArgumentNotValidException
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -49,6 +50,12 @@ class CounterApiController(
 	): ResponseEntity<CounterResponse> {
 		val counter = service.decrement(id, req.amount, req.occurredAt)
 		return ResponseEntity.ok(CounterResponse.from(counter))
+	}
+
+	@DeleteMapping("/{id}")
+	fun delete(@PathVariable id: UUID): ResponseEntity<Void> {
+		service.deleteCounter(id)
+		return ResponseEntity.noContent().build()
 	}
 
 	@ExceptionHandler(CounterNameAlreadyExistsException::class)

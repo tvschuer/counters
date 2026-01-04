@@ -7,7 +7,7 @@ import java.util.UUID
 @Repository
 interface CounterRepository : JpaRepository<CounterEntity, UUID> {
 	fun existsByNameIgnoreCase(name: String): Boolean
-	fun findAllByOrderByNameAsc(): List<CounterEntity>
+	fun findAllByDeletedAtNullOrderByNameAsc(): List<CounterEntity>
 }
 
 

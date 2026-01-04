@@ -70,6 +70,12 @@ class CounterWebController(
 		service.decrement(id)
 		return "redirect:/counters"
 	}
+
+	@PostMapping("/{id}/delete")
+	fun delete(@PathVariable id: UUID): String {
+		service.deleteCounter(id)
+		return "redirect:/counters"
+	}
 }
 
 data class CreateCounterForm(

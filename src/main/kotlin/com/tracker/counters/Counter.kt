@@ -10,6 +10,7 @@ data class Counter(
 	val value: Long,
 	val defaultAmount: Int,
 	val createdAt: Instant,
+	val deletedAt: Instant?,
 )
 
 

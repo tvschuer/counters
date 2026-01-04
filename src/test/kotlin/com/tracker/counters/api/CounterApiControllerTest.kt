@@ -6,6 +6,7 @@ import com.tracker.counters.CounterService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import org.mockito.Mockito
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.mock
 import org.springframework.http.HttpStatus
@@ -27,6 +28,7 @@ class CounterApiControllerTest {
 				value = 0L,
 				defaultAmount = 1,
 				createdAt = Instant.EPOCH,
+				deletedAt = null,
 			),
 		)
 
@@ -60,6 +62,7 @@ class CounterApiControllerTest {
 			value = 5L,
 			defaultAmount = 1,
 			createdAt = Instant.EPOCH,
+			deletedAt = null,
 		)
 		`when`(service.increment(id, null, null)).thenReturn(updatedCounter)
 
@@ -83,6 +86,7 @@ class CounterApiControllerTest {
 			value = 3L,
 			defaultAmount = 1,
 			createdAt = Instant.EPOCH,
+			deletedAt = null,
 		)
 		`when`(service.decrement(id, null, null)).thenReturn(updatedCounter)
 
@@ -107,6 +111,7 @@ class CounterApiControllerTest {
 			value = 10L,
 			defaultAmount = 1,
 			createdAt = Instant.EPOCH,
+			deletedAt = null,
 		)
 		`when`(service.increment(id, 5, customTime)).thenReturn(updatedCounter)
 
@@ -114,6 +119,19 @@ class CounterApiControllerTest {
 
 		assertEquals(HttpStatus.OK, res.statusCode)
 		assertEquals(10L, res.body?.value)
+	}
+
+	@Test
+	fun `delete returns 204 No Content`() {
+		val service = mock(CounterService::class.java)
+		val controller = CounterApiController(service)
+
+		val id = UUID.randomUUID()
+
+		val res = controller.delete(id)
+
+		assertEquals(HttpStatus.NO_CONTENT, res.statusCode)
+		Mockito.verify(service).deleteCounter(id)
 	}
 }
 

@@ -48,12 +48,30 @@ class CounterService(
 		}
 	}
 
-	fun listCounters(): List<Counter> = repo.findAllByOrderByNameAsc().map { it.toDomain() }
+	fun listCounters(): List<Counter> = repo.findAllByDeletedAtNullOrderByNameAsc().map { it.toDomain() }
+
+	@Transactional
+	fun deleteCounter(counterId: UUID) {
+		val counter = repo.findById(counterId).orElseThrow {
+			IllegalArgumentException("counter not found")
+		}
+
+		if (counter.deletedAt != null) {
+			throw IllegalArgumentException("counter is already deleted")
+		}
+
+		counter.deletedAt = Instant.now(clock)
+		repo.save(counter)
+	}
 
 	@Transactional
 	fun increment(counterId: UUID, amount: Int? = null, occurredAt: Instant? = null): Counter {
 		val counter = repo.findById(counterId).orElseThrow {
 			IllegalArgumentException("counter not found")
+		}
+
+		if (counter.deletedAt != null) {
+			throw IllegalArgumentException("counter is deleted")
 		}
 
 		val actualAmount = (amount ?: counter.defaultAmount).toLong()
@@ -69,6 +87,10 @@ class CounterService(
 	fun decrement(counterId: UUID, amount: Int? = null, occurredAt: Instant? = null): Counter {
 		val counter = repo.findById(counterId).orElseThrow {
 			IllegalArgumentException("counter not found")
+		}
+
+		if (counter.deletedAt != null) {
+			throw IllegalArgumentException("counter is deleted")
 		}
 
 		val actualAmount = (amount ?: counter.defaultAmount).toLong()
@@ -109,6 +131,7 @@ private fun CounterEntity.toDomain(): Counter =
 		value = this.value,
 		defaultAmount = this.defaultAmount,
 		createdAt = this.createdAt,
+		deletedAt = this.deletedAt,
 	)
 
 
