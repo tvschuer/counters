@@ -50,6 +50,52 @@ class CounterService(
 
 	fun listCounters(): List<Counter> = repo.findAllByDeletedAtNullOrderByNameAsc().map { it.toDomain() }
 
+	fun getCounter(counterId: UUID): Counter {
+		val counter = repo.findById(counterId).orElseThrow {
+			IllegalArgumentException("counter not found")
+		}
+
+		if (counter.deletedAt != null) {
+			throw IllegalArgumentException("counter is deleted")
+		}
+
+		return counter.toDomain()
+	}
+
+	@Transactional
+	fun updateCounter(counterId: UUID, name: String, unit: String, defaultAmount: Int): Counter {
+		val counter = repo.findById(counterId).orElseThrow {
+			IllegalArgumentException("counter not found")
+		}
+
+		if (counter.deletedAt != null) {
+			throw IllegalArgumentException("counter is deleted")
+		}
+
+		val trimmedName = name.trim()
+		val trimmedUnit = unit.trim()
+
+		require(trimmedName.isNotBlank()) { "name must not be blank" }
+		require(trimmedUnit.isNotBlank()) { "unit must not be blank" }
+		require(defaultAmount > 0) { "default amount must be positive" }
+
+		// Check for name uniqueness (excluding current counter)
+		if (trimmedName.lowercase() != counter.name.lowercase() && 
+		    repo.existsByNameIgnoreCase(trimmedName)) {
+			throw CounterNameAlreadyExistsException("counter name must be unique")
+		}
+
+		counter.name = trimmedName
+		counter.unit = trimmedUnit
+		counter.defaultAmount = defaultAmount
+
+		return try {
+			repo.save(counter).toDomain()
+		} catch (e: DataIntegrityViolationException) {
+			throw CounterNameAlreadyExistsException("counter name must be unique")
+		}
+	}
+
 	@Transactional
 	fun deleteCounter(counterId: UUID) {
 		val counter = repo.findById(counterId).orElseThrow {

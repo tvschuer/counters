@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Edit Counter - Tracker</title>
+  <link rel="stylesheet" href="/app.css">
+</head>
+<body>
+<main class="container">
+  <header class="header">
+    <div>
+      <h1>Edit Counter</h1>
+      <p class="muted">Update counter details</p>
+    </div>
+    <a class="button secondary" href="/counters">← Back to Dashboard</a>
+  </header>
+
+  <section class="card">
+    <p th:if="${errorMessage}" class="error" th:text="${errorMessage}">Error message</p>
+
+    <form th:action="@{/counters/{id}(id=${counter.id})}" method="post" th:object="${form}">
+      <label class="field">
+        <span>Name</span>
+        <input type="text" th:field="*{name}" required>
+      </label>
+
+      <label class="field">
+        <span>Unit</span>
+        <input type="text" th:field="*{unit}" required>
+      </label>
+
+      <label class="field">
+        <span>Default Amount</span>
+        <input type="number" th:field="*{defaultAmount}" min="1" required>
+      </label>
+
+      <div class="field">
+        <span>Current Value</span>
+        <p class="mono" th:text="${counter.value}">0</p>
+      </div>
+
+      <div class="actions">
+        <button type="submit" class="button">Save Changes</button>
+      </div>
+    </form>
+  </section>
+
+  <section class="card" style="margin-top: 18px;">
+    <h2 style="margin: 0 0 14px; font-size: 18px;">Actions</h2>
+    
+    <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+      <form th:action="@{/counters/{id}/increment(id=${counter.id}, returnUrl='/counters/' + ${counter.id} + '/edit')}" method="post">
+        <button type="submit" class="button">Increment (+)</button>
+      </form>
+
+      <form th:action="@{/counters/{id}/decrement(id=${counter.id}, returnUrl='/counters/' + ${counter.id} + '/edit')}" method="post">
+        <button type="submit" class="button secondary">Decrement (−)</button>
+      </form>
+
+      <form th:action="@{/counters/{id}/delete(id=${counter.id})}" method="post">
+        <button type="submit" class="button secondary" onclick="return confirm('Delete this counter? This cannot be undone.')">Delete Counter</button>
+      </form>
+    </div>
+  </section>
+</main>
+</body>
+</html>
+

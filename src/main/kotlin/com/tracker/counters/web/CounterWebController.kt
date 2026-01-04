@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import java.util.UUID
 
 @Controller
@@ -59,16 +60,60 @@ class CounterWebController(
 		}
 	}
 
+	@GetMapping("/{id}/edit")
+	fun edit(@PathVariable id: UUID, model: Model): String {
+		val counter = service.getCounter(id)
+		model.addAttribute("counter", counter)
+		model.addAttribute("form", UpdateCounterForm(
+			name = counter.name,
+			unit = counter.unit,
+			defaultAmount = counter.defaultAmount
+		))
+		return "counters/edit"
+	}
+
+	@PostMapping("/{id}")
+	fun update(
+		@PathVariable id: UUID,
+		@Validated @ModelAttribute("form") form: UpdateCounterForm,
+		binding: BindingResult,
+		model: Model,
+	): String {
+		if (binding.hasErrors()) {
+			model.addAttribute("counter", service.getCounter(id))
+			return "counters/edit"
+		}
+
+		return try {
+			service.updateCounter(id, form.name, form.unit, form.defaultAmount)
+			"redirect:/counters"
+		} catch (e: CounterNameAlreadyExistsException) {
+			model.addAttribute("counter", service.getCounter(id))
+			model.addAttribute("errorMessage", e.message ?: "counter name must be unique")
+			"counters/edit"
+		} catch (e: IllegalArgumentException) {
+			model.addAttribute("counter", service.getCounter(id))
+			model.addAttribute("errorMessage", e.message ?: "validation error")
+			"counters/edit"
+		}
+	}
+
 	@PostMapping("/{id}/increment")
-	fun increment(@PathVariable id: UUID): String {
+	fun increment(
+		@PathVariable id: UUID,
+		@RequestParam(required = false) returnUrl: String?
+	): String {
 		service.increment(id)
-		return "redirect:/counters"
+		return "redirect:${returnUrl ?: "/counters"}"
 	}
 
 	@PostMapping("/{id}/decrement")
-	fun decrement(@PathVariable id: UUID): String {
+	fun decrement(
+		@PathVariable id: UUID,
+		@RequestParam(required = false) returnUrl: String?
+	): String {
 		service.decrement(id)
-		return "redirect:/counters"
+		return "redirect:${returnUrl ?: "/counters"}"
 	}
 
 	@PostMapping("/{id}/delete")
@@ -82,6 +127,12 @@ data class CreateCounterForm(
 	@field:NotBlank var name: String = "",
 	@field:NotBlank var unit: String = "",
 	@field:Positive var defaultAmount: Int? = null,
+)
+
+data class UpdateCounterForm(
+	@field:NotBlank var name: String = "",
+	@field:NotBlank var unit: String = "",
+	@field:Positive var defaultAmount: Int = 1,
 )
 
 

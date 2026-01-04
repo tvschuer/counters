@@ -60,3 +60,12 @@ Open question in design.md: should Counter names be unique (case-insensitive) fo
 
 ### Requirements Refinement
 **Tom:** add Requirement, swipe down on a tile decreases the counter
+
+### Implementation
+**Agent:** *generates specs*
+
+**Tom:** Approved, lets implement
+
+**Agent:** *generates code*
+
+**Tom:** Perfect, archive & commit

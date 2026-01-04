@@ -11,7 +11,6 @@
   <header class="header">
     <div>
       <h1>Counters</h1>
-      <p class="muted">Single-user, simple counters. IDs are UUIDs; names are unique.</p>
     </div>
     <a class="button" href="/counters/new">New counter</a>
   </header>
@@ -21,37 +20,20 @@
     <p><a href="/counters/new">Create your first counter</a></p>
   </section>
 
-  <section th:if="${!#lists.isEmpty(counters)}">
-    <table class="table">
-      <thead>
-      <tr>
-        <th>Name</th>
-        <th>Value</th>
-        <th>Unit</th>
-        <th>Actions</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr th:each="c : ${counters}">
-        <td th:text="${c.name}">name</td>
-        <td><strong th:text="${c.value}">0</strong></td>
-        <td th:text="${c.unit}">unit</td>
-        <td>
-          <form th:action="@{/counters/{id}/increment(id=${c.id})}" method="post" style="display: inline;">
-            <button type="submit" class="button small">+</button>
-          </form>
-          <form th:action="@{/counters/{id}/decrement(id=${c.id})}" method="post" style="display: inline;">
-            <button type="submit" class="button small secondary">−</button>
-          </form>
-          <form th:action="@{/counters/{id}/delete(id=${c.id})}" method="post" style="display: inline;">
-            <button type="submit" class="button small secondary" onclick="return confirm('Delete this counter?')">Delete</button>
-          </form>
-        </td>
-      </tr>
-      </tbody>
-    </table>
+  <section class="counter-grid" th:if="${!#lists.isEmpty(counters)}">
+    <div class="counter-tile" 
+         th:each="c : ${counters}"
+         th:data-counter-id="${c.id}"
+         th:data-counter-value="${c.value}"
+         th:data-counter-name="${c.name}">
+      <div class="counter-tile-name" th:text="${c.name}">Counter Name</div>
+      <div class="counter-tile-value" th:text="${c.value}">0</div>
+      <div class="counter-tile-unit" th:text="${c.unit}">unit</div>
+    </div>
   </section>
 </main>
+
+<script src="/dashboard.js"></script>
 </body>
 </html>
 
