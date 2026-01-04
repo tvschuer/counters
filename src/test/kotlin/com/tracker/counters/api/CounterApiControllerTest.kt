@@ -133,6 +133,69 @@ class CounterApiControllerTest {
 		assertEquals(HttpStatus.NO_CONTENT, res.statusCode)
 		Mockito.verify(service).deleteCounter(id)
 	}
+
+	@Test
+	fun `exception handler returns 400 for duplicate name`() {
+		val controller = CounterApiController(mock(CounterService::class.java))
+		val exception = CounterNameAlreadyExistsException("counter name must be unique")
+
+		val res = controller.duplicateName(exception)
+
+		assertEquals(HttpStatus.BAD_REQUEST, res.statusCode)
+		assertEquals("counter name must be unique", res.body?.message)
+	}
+
+	@Test
+	fun `exception handler returns 400 for IllegalArgumentException`() {
+		val controller = CounterApiController(mock(CounterService::class.java))
+		val exception = IllegalArgumentException("counter not found")
+
+		val res = controller.illegalArg(exception)
+
+		assertEquals(HttpStatus.BAD_REQUEST, res.statusCode)
+		assertEquals("counter not found", res.body?.message)
+	}
+
+	@Test
+	fun `increment with non-existent counter throws IllegalArgumentException`() {
+		val service = mock(CounterService::class.java)
+		val controller = CounterApiController(service)
+		val id = UUID.randomUUID()
+
+		`when`(service.increment(id, null, null))
+			.thenThrow(IllegalArgumentException("counter not found"))
+
+		assertThrows<IllegalArgumentException> {
+			controller.increment(id, UpdateCounterRequest())
+		}
+	}
+
+	@Test
+	fun `decrement with deleted counter throws IllegalArgumentException`() {
+		val service = mock(CounterService::class.java)
+		val controller = CounterApiController(service)
+		val id = UUID.randomUUID()
+
+		`when`(service.decrement(id, null, null))
+			.thenThrow(IllegalArgumentException("counter is deleted"))
+
+		assertThrows<IllegalArgumentException> {
+			controller.decrement(id, UpdateCounterRequest())
+		}
+	}
+
+	@Test
+	fun `create with duplicate name throws CounterNameAlreadyExistsException`() {
+		val service = mock(CounterService::class.java)
+		val controller = CounterApiController(service)
+
+		`when`(service.createCounter("Water", "glasses", null))
+			.thenThrow(CounterNameAlreadyExistsException("counter name must be unique"))
+
+		assertThrows<CounterNameAlreadyExistsException> {
+			controller.create(CreateCounterRequest(name = "Water", unit = "glasses"))
+		}
+	}
 }
 
 

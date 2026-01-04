@@ -6,6 +6,7 @@ plugins {
 	kotlin("jvm") version "2.2.21"
 	kotlin("plugin.spring") version "2.2.21"
 	kotlin("plugin.jpa") version "2.2.21"
+	id("org.jetbrains.kotlinx.kover") version "0.8.3"
 }
 
 group = "com.tracker"
@@ -34,6 +35,7 @@ dependencies {
 	runtimeOnly("org.postgresql:postgresql")
 
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
+	testImplementation("org.springframework.boot:spring-boot-starter-web")
 	testImplementation("org.mockito:mockito-core")
 	testImplementation("org.mockito:mockito-junit-jupiter")
 }
@@ -46,6 +48,23 @@ tasks.withType<KotlinCompile> {
 
 tasks.withType<Test> {
 	useJUnitPlatform()
+}
+
+kover {
+	reports {
+		filters {
+			excludes {
+				// Exclude generated classes
+				classes("*.db.*Entity")
+				classes("*.*Application*")
+				// Exclude data classes (DTOs)
+				classes("*.api.*Request")
+				classes("*.api.*Response")
+				classes("*.api.ApiError")
+				classes("*.web.*Form")
+			}
+		}
+	}
 }
 
 
