@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tracker - Counters</title>
+  <link rel="stylesheet" href="/app.css">
+</head>
+<body>
+<main class="container">
+  <header class="header">
+    <div>
+      <h1>Counters</h1>
+      <p class="muted">Single-user, simple counters. IDs are UUIDs; names are unique.</p>
+    </div>
+    <a class="button" href="/counters/new">New counter</a>
+  </header>
+
+  <section class="card" th:if="${#lists.isEmpty(counters)}">
+    <p>No counters yet.</p>
+    <p><a href="/counters/new">Create your first counter</a></p>
+  </section>
+
+  <section th:if="${!#lists.isEmpty(counters)}">
+    <table class="table">
+      <thead>
+      <tr>
+        <th>Name</th>
+        <th>Unit</th>
+        <th class="mono">ID</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="c : ${counters}">
+        <td th:text="${c.name}">name</td>
+        <td th:text="${c.unit}">unit</td>
+        <td class="mono" th:text="${c.id}">id</td>
+      </tr>
+      </tbody>
+    </table>
+  </section>
+</main>
+</body>
+</html>
+
+

@@ -1,3 +1,28 @@
-.cursor/
 .DS_Store
+
+# Cursor / VS Code / JetBrains
+.cursor/
+.vscode/
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Gradle
+.gradle/
+build/
+**/build/
+
+# Java/Kotlin build outputs
+out/
+**/out/
+*.class
+
+# Logs / misc
+*.log
+logs/
+
+# Local env / secrets (keep configs committed separately)
+.env
+.env.*
 
