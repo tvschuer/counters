@@ -8,23 +8,20 @@ import java.time.Instant
 import java.util.UUID
 
 @Entity
-@Table(name = "counters")
-class CounterEntity(
+@Table(name = "counter_events")
+class CounterEventEntity(
 	@Id
 	@Column(name = "id", nullable = false)
 	val id: UUID,
 
-	@Column(name = "name", nullable = false)
-	var name: String,
+	@Column(name = "counter_id", nullable = false)
+	val counterId: UUID,
 
-	@Column(name = "unit", nullable = false)
-	var unit: String,
+	@Column(name = "delta", nullable = false)
+	val delta: Long,
 
-	@Column(name = "value", nullable = false)
-	var value: Long,
-
-	@Column(name = "default_amount", nullable = false)
-	var defaultAmount: Int,
+	@Column(name = "occurred_at", nullable = false)
+	val occurredAt: Instant,
 
 	@Column(name = "created_at", nullable = false)
 	val createdAt: Instant,
@@ -32,12 +29,10 @@ class CounterEntity(
 	@Suppress("unused")
 	protected constructor() : this(
 		id = UUID.randomUUID(),
-		name = "",
-		unit = "",
-		value = 0L,
-		defaultAmount = 1,
+		counterId = UUID.randomUUID(),
+		delta = 0L,
+		occurredAt = Instant.EPOCH,
 		createdAt = Instant.EPOCH,
 	)
 }
-
 

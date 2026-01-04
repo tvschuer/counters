@@ -32,6 +32,12 @@
         <small class="error" th:if="${#fields.hasErrors('unit')}" th:errors="*{unit}">unit error</small>
       </label>
 
+      <label class="field">
+        <span>Default amount (optional, default is 1)</span>
+        <input type="number" th:field="*{defaultAmount}" placeholder="1" min="1">
+        <small class="error" th:if="${#fields.hasErrors('defaultAmount')}" th:errors="*{defaultAmount}">default amount error</small>
+      </label>
+
       <div class="actions">
         <button class="button" type="submit">Create</button>
       </div>

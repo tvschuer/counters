@@ -26,15 +26,24 @@
       <thead>
       <tr>
         <th>Name</th>
+        <th>Value</th>
         <th>Unit</th>
-        <th class="mono">ID</th>
+        <th>Actions</th>
       </tr>
       </thead>
       <tbody>
       <tr th:each="c : ${counters}">
         <td th:text="${c.name}">name</td>
+        <td><strong th:text="${c.value}">0</strong></td>
         <td th:text="${c.unit}">unit</td>
-        <td class="mono" th:text="${c.id}">id</td>
+        <td>
+          <form th:action="@{/counters/{id}/increment(id=${c.id})}" method="post" style="display: inline;">
+            <button type="submit" class="button small">+</button>
+          </form>
+          <form th:action="@{/counters/{id}/decrement(id=${c.id})}" method="post" style="display: inline;">
+            <button type="submit" class="button small secondary">−</button>
+          </form>
+        </td>
       </tr>
       </tbody>
     </table>

@@ -3,13 +3,11 @@ package com.tracker.counters
 import java.time.Instant
 import java.util.UUID
 
-data class Counter(
+data class CounterEvent(
 	val id: UUID,
-	val name: String,
-	val unit: String,
-	val value: Long,
-	val defaultAmount: Int,
+	val counterId: UUID,
+	val delta: Long,
+	val occurredAt: Instant,
 	val createdAt: Instant,
 )
-
 
